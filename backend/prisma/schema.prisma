@@ -1,0 +1,202 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  passwordHash  String
+  firstName     String
+  lastName      String
+  phone         String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  bands         BandMember[]
+  ownedBands    Band[]         @relation("BandOwner")
+  rehearsals    Rehearsal[]    @relation("RehearsalCreator")
+  availability  Availability[]
+  attendance    Attendance[]
+  venues        Venue[]        @relation("VenueCreator")
+  resources     Resource[]     @relation("ResourceCreator")
+  setlists      Setlist[]      @relation("SetlistCreator")
+}
+
+model Band {
+  id            String        @id @default(uuid())
+  name          String
+  description   String?
+  createdBy     String
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  members       BandMember[]
+  rehearsals    Rehearsal[]
+  resources     Resource[]
+  owner         User          @relation("BandOwner", fields: [createdBy], references: [id])
+}
+
+model BandMember {
+  id        String    @id @default(uuid())
+  bandId    String
+  userId    String
+  role      Role      @default(member)
+  joinedAt  DateTime  @default(now())
+  band      Band      @relation(fields: [bandId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([bandId, userId])
+}
+
+model Venue {
+  id          String      @id @default(uuid())
+  name        String
+  address     String?
+  notes       String?
+  createdBy   String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  rehearsals  Rehearsal[]
+  creator     User        @relation("VenueCreator", fields: [createdBy], references: [id])
+}
+
+model Rehearsal {
+  id                String      @id @default(uuid())
+  bandId            String
+  venueId           String?
+  title             String
+  description       String?
+  startTime         DateTime
+  endTime           DateTime
+  isRecurring       Boolean     @default(false)
+  recurrencePattern Json?
+  createdBy         String
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  band              Band        @relation(fields: [bandId], references: [id], onDelete: Cascade)
+  venue             Venue?      @relation(fields: [venueId], references: [id])
+  creator           User        @relation("RehearsalCreator", fields: [createdBy], references: [id])
+  attendance        Attendance[]
+  setlists          Setlist[]
+  resources         Resource[]
+}
+
+model Availability {
+  id        String          @id @default(uuid())
+  userId    String
+  bandId    String
+  startTime DateTime
+  endTime   DateTime
+  status    AvailabilityStatus
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  band      Band            @relation(fields: [bandId], references: [id], onDelete: Cascade)
+}
+
+model Attendance {
+  id            String           @id @default(uuid())
+  rehearsalId   String
+  userId        String
+  status        AttendanceStatus @default(no_response)
+  checkInTime   DateTime?
+  absenceReason String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  rehearsal     Rehearsal        @relation(fields: [rehearsalId], references: [id], onDelete: Cascade)
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([rehearsalId, userId])
+}
+
+model Setlist {
+  id          String        @id @default(uuid())
+  rehearsalId String
+  title       String
+  description String?
+  createdBy   String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  rehearsal   Rehearsal     @relation(fields: [rehearsalId], references: [id], onDelete: Cascade)
+  creator     User          @relation("SetlistCreator", fields: [createdBy], references: [id])
+  items       SetlistItem[]
+}
+
+model SetlistItem {
+  id          String   @id @default(uuid())
+  setlistId   String
+  songTitle   String
+  artist      String?
+  duration    Int?
+  notes       String?
+  position    Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  setlist     Setlist  @relation(fields: [setlistId], references: [id], onDelete: Cascade)
+
+  @@unique([setlistId, position])
+}
+
+model Resource {
+  id            String        @id @default(uuid())
+  rehearsalId   String?
+  bandId        String
+  title         String
+  description   String?
+  fileUrl       String?
+  resourceType  ResourceType
+  createdBy     String
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  rehearsal     Rehearsal?    @relation(fields: [rehearsalId], references: [id], onDelete: SetNull)
+  band          Band          @relation(fields: [bandId], references: [id], onDelete: Cascade)
+  creator       User          @relation("ResourceCreator", fields: [createdBy], references: [id])
+}
+
+model Notification {
+  id          String           @id @default(uuid())
+  userId      String
+  rehearsalId String?
+  message     String
+  type        NotificationType
+  read        Boolean          @default(false)
+  sentAt      DateTime         @default(now())
+  createdAt   DateTime         @default(now())
+}
+
+enum Role {
+  leader
+  member
+  admin
+}
+
+enum AvailabilityStatus {
+  available
+  unavailable
+  tentative
+}
+
+enum AttendanceStatus {
+  confirmed
+  declined
+  tentative
+  no_response
+}
+
+enum ResourceType {
+  document
+  audio
+  video
+  link
+}
+
+enum NotificationType {
+  rehearsal_created
+  rehearsal_updated
+  reminder
+  rsvp_request
+  custom
+}
