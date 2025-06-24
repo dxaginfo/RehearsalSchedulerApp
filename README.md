@@ -1,158 +1,140 @@
-# Rehearsal Scheduler Application
+# Rehearsal Scheduler App
 
-A comprehensive web application designed to help bands, orchestras, and music ensembles automate their rehearsal scheduling process. The application tracks availability, sends reminders, monitors attendance, and suggests optimal rehearsal times based on member availability patterns.
+A comprehensive web application for automatically scheduling band rehearsals, sending reminders, tracking attendance, and suggesting optimal rehearsal times based on member availability.
 
 ## Features
 
-### User Management
-- User registration and authentication
-- User roles (admin, manager, member)
-- Profile management with availability settings
+- **User Authentication & Management**
+  - User registration, login, and profile management
+  - Role-based access control (admin, manager, member)
 
-### Rehearsal Management
-- Create, edit, and delete rehearsal events
-- Set location, time, duration, and required attendees
-- Track rehearsal agendas and goals
-- Mark songs/pieces to be practiced
+- **Group Management**
+  - Create and manage musical groups/bands
+  - Invite and manage group members
+  - Assign roles within groups
 
-### Attendance Tracking
-- RSVP functionality for members
-- Attendance recording
-- Historical attendance reports
+- **Rehearsal Scheduling**
+  - Create one-time or recurring rehearsals
+  - Intelligent scheduling based on member availability
+  - Location and resource management
+  - Rehearsal agenda/setlist planning
 
-### Smart Scheduling
-- Automatic suggestion of optimal rehearsal times based on member availability
-- Conflict detection and resolution
-- Recurring rehearsal patterns
+- **Availability Management**
+  - Members can set regular weekly availability
+  - Add exceptions for specific dates
+  - Availability visualization
 
-### Notifications
-- Email and optional SMS reminders
-- Rehearsal change alerts
-- Cancellation notifications
+- **Attendance Tracking**
+  - RSVP system for rehearsals
+  - Attendance history and reporting
+  - Check-in functionality
 
-### Reporting and Analytics
-- Attendance statistics
-- Member participation metrics
-- Progress tracking
+- **Notification System**
+  - Rehearsal reminders via email and in-app notifications
+  - Scheduling change alerts
+  - Custom notification preferences
 
-## Technology Stack
+- **Calendar Integration**
+  - Sync with Google Calendar, iCal, and other calendar systems
+  - Export rehearsal schedules
+
+## Tech Stack
 
 ### Frontend
 - React.js
-- Redux for state management
-- Material-UI for UI components
-- FullCalendar for calendar integration
-- Recharts for data visualization
+- Redux (state management)
+- Material-UI (component library)
+- Formik & Yup (form validation)
+- Full Calendar (calendar display)
+- Axios (API client)
 
 ### Backend
-- Node.js with Express.js
-- JWT for authentication
-- Swagger for API documentation
+- Node.js
+- Express.js
+- PostgreSQL (database)
+- Sequelize (ORM)
+- JWT (authentication)
+- Nodemailer (email notifications)
 
-### Database
-- PostgreSQL
-- Sequelize ORM
-
-### DevOps
-- Docker for containerization
-- AWS for deployment
-- GitHub Actions for CI/CD
-
-## Installation
+## Getting Started
 
 ### Prerequisites
 - Node.js (v14 or later)
-- npm or yarn
 - PostgreSQL (v12 or later)
+- npm or yarn
 
-### Setup Instructions
+### Installation
 
 1. Clone the repository
-```bash
-git clone https://github.com/dxaginfo/RehearsalSchedulerApp.git
-cd RehearsalSchedulerApp
-```
+   ```
+   git clone https://github.com/dxaginfo/RehearsalSchedulerApp.git
+   cd RehearsalSchedulerApp
+   ```
 
-2. Install dependencies
-```bash
-# Install backend dependencies
-cd server
-npm install
+2. Install server dependencies
+   ```
+   cd server
+   npm install
+   ```
 
-# Install frontend dependencies
-cd ../client
-npm install
-```
+3. Install client dependencies
+   ```
+   cd ../client
+   npm install
+   ```
 
-3. Configure environment variables
-```bash
-# In the server directory, create a .env file with:
-PORT=5000
-DATABASE_URL=postgresql://username:password@localhost:5432/rehearsal_scheduler
-JWT_SECRET=your_jwt_secret
-SENDGRID_API_KEY=your_sendgrid_api_key
-TWILIO_ACCOUNT_SID=your_twilio_sid
-TWILIO_AUTH_TOKEN=your_twilio_token
-```
+4. Set up environment variables
+   - Create a `.env` file in the server directory based on `.env.example`
+   - Set database connection details, JWT secret, etc.
 
-4. Initialize the database
-```bash
-cd server
-npm run db:migrate
-npm run db:seed
-```
+5. Set up the database
+   ```
+   cd ../server
+   npx sequelize-cli db:create
+   npx sequelize-cli db:migrate
+   npx sequelize-cli db:seed:all  # Optional: seed with sample data
+   ```
 
-5. Start the development servers
-```bash
-# Start backend server
-cd server
-npm run dev
+6. Start the development servers
+   - For backend:
+     ```
+     cd server
+     npm run dev
+     ```
+   - For frontend:
+     ```
+     cd client
+     npm start
+     ```
 
-# Start frontend server in a new terminal
-cd client
-npm start
-```
+7. Access the application at `http://localhost:3000`
 
-6. Access the application at `http://localhost:3000`
+## Deployment
 
-## Project Structure
+### Backend Deployment (Heroku)
+1. Create a Heroku account and install the Heroku CLI
+2. Create a new Heroku app and add a PostgreSQL add-on
+3. Set environment variables in Heroku dashboard
+4. Deploy using Git:
+   ```
+   heroku git:remote -a your-heroku-app-name
+   git push heroku main
+   ```
 
-```
-rehearsal-scheduler/
-├── client/                 # Frontend React application
-│   ├── public/             # Static files
-│   ├── src/                # React source code
-│   │   ├── components/     # Reusable components
-│   │   ├── pages/          # Page components
-│   │   ├── services/       # API services
-│   │   ├── store/          # Redux store
-│   │   └── utils/          # Utility functions
-│   └── package.json        # Frontend dependencies
-├── server/                 # Backend Node.js/Express application
-│   ├── config/             # Configuration files
-│   ├── controllers/        # Request handlers
-│   ├── middleware/         # Express middleware
-│   ├── models/             # Database models
-│   ├── routes/             # API routes
-│   ├── services/           # Business logic
-│   ├── utils/              # Utility functions
-│   └── package.json        # Backend dependencies
-├── .github/                # GitHub Actions workflows
-├── docker-compose.yml      # Docker configuration
-├── Dockerfile              # Docker build instructions
-└── README.md               # Project documentation
-```
-
-## API Documentation
-
-Once the server is running, you can access the Swagger API documentation at `http://localhost:5000/api-docs`.
+### Frontend Deployment
+1. Build the React application:
+   ```
+   cd client
+   npm run build
+   ```
+2. The Express server is configured to serve the static React build in production mode
 
 ## Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+2. Create a feature branch (`git checkout -b feature/your-feature`)
+3. Commit your changes (`git commit -m 'Add some feature'`)
+4. Push to the branch (`git push origin feature/your-feature`)
 5. Open a Pull Request
 
 ## License
@@ -161,5 +143,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Acknowledgments
 
-- Thanks to all the open-source libraries that made this project possible
-- Special thanks to the music community for inspiration
+- [React Documentation](https://reactjs.org/docs/getting-started.html)
+- [Express Documentation](https://expressjs.com/)
+- [Sequelize Documentation](https://sequelize.org/master/)
+- [Material-UI Documentation](https://mui.com/)
